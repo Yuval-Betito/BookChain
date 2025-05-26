@@ -1,0 +1,19 @@
+# node_modules and build
+node_modules/
+client/node_modules/
+artifacts/
+cache/
+build/
+client/.next/
+client/.env
+
+# OS
+.DS_Store
+
+# compiled
+*.log
+
+# local hardhat secrets
+*.secret
+.env
+
