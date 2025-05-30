@@ -1,106 +1,127 @@
-# 📚 BookChain DApp
+# BookChain DApp
 
-A decentralized application (DApp) that allows authors to mint and list book NFTs, and enables readers to purchase them using BOOKY ERC20 tokens.
+BookChain is a decentralized application (DApp) that allows users to mint, manage, and sell digital books as NFTs (ERC721) using a custom ERC20 token called BOOKY.
 
----
+## Features
 
-## 🔧 Tech Stack
-
-- **Smart Contracts**: Solidity (ERC721 + ERC20)
-- **Blockchain Environment**: Hardhat (localhost network)
-- **Frontend**: React.js
-- **Wallet**: MetaMask
-- **Blockchain Communication**: Web3.js
+* Mint books as NFTs (ERC721) with metadata (title, author, cover image)
+* Manage personal book ownership in Reader Dashboard
+* List books for sale and purchase them using BOOKY tokens in Marketplace
+* Wallet connection via MetaMask
+* Fully styled with Tailwind CSS and includes animations
 
 ---
 
-## 🚀 Features
+## Installation & Setup Instructions
 
-- ✍️ Authors can mint NFTs with book title, author name, and cover image
-- 🪙 BOOKY ERC20 token for internal currency
-- 🛒 Marketplace where books can be listed and purchased
-- 👛 MetaMask integration for all blockchain transactions
-- 📖 Reader Dashboard to view minted books
-- 🧑‍💻 Fully local development environment (no backend server needed)
-
----
-
-## 📂 Project Structure
-
-```
-bookchain-dapp/
-├── contracts/              # Solidity smart contracts (BookNFT, BookyToken, Marketplace)
-├── scripts/                # Deployment scripts
-├── client/                 # React frontend app
-│   ├── src/
-│   └── public/
-├── artifacts/              # Auto-generated ABI files after compiling
-├── hardhat.config.js       # Hardhat configuration
-```
-
----
-
-## 🧪 Local Development Guide
-
-### 1. Clone the repository
+### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/Yuval-Betito/bookchain-dapp.git
+git clone https://github.com/yourusername/bookchain-dapp.git
 cd bookchain-dapp
 ```
 
-### 2. Install backend dependencies
-
-```bash
-npm install
-```
-
-### 3. Install frontend dependencies
+### 2. Install Dependencies for Client
 
 ```bash
 cd client
 npm install
 ```
 
-### 4. Start Hardhat local blockchain
+### 3. Start the React App
 
 ```bash
-npx hardhat node
+npm start
 ```
 
-### 5. Deploy contracts
+Runs on: `http://localhost:3000`
 
-In a separate terminal, run:
+### 4. Run Metadata Server
+
+In a separate terminal:
 
 ```bash
+cd client
+node server.js
+```
+
+Runs on: `http://localhost:5000`
+
+### 5. Compile & Deploy Contracts
+
+Using Hardhat:
+
+```bash
+npx hardhat compile
 npx hardhat run scripts/deployBookNFT.js --network localhost
 npx hardhat run scripts/deployBookyToken.js --network localhost
 npx hardhat run scripts/deployMarketplace.js --network localhost
 ```
 
-### 6. Start the React frontend
+Update the deployed contract addresses in:
 
-```bash
-cd client
-npm start
+* `client/src/contract-address.js`
+* `client/src/marketplace-address.js`
+* `client/src/erc20-address.js`
+
+---
+
+## Pages Overview
+
+| Page            | Path           | Description                  |
+| --------------- | -------------- | ---------------------------- |
+| HomePage        | `/`            | Landing page with navigation |
+| AuthorDashboard | `/author`      | Upload, mint, and list books |
+| MarketplacePage | `/marketplace` | View and buy listed books    |
+| ReaderDashboard | `/reader`      | See books owned by the user  |
+
+---
+
+## Technologies Used
+
+* React + React Router
+* Tailwind CSS
+* Solidity (ERC721 + ERC20)
+* Hardhat
+* MetaMask + Web3.js
+* Express (for metadata handling)
+
+---
+
+## Folder Structure
+
+```
+bookchain-dapp/
+├── client/
+│   ├── public/
+│   │   ├── images/
+│   │   └── metadata/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── abi/
+│   │   └── ...
+│   └── server.js
+├── contracts/
+│   ├── BookNFT.sol
+│   ├── BookyToken.sol
+│   └── Marketplace.sol
+├── scripts/
+│   ├── deployBookNFT.js
+│   ├── deployBookyToken.js
+│   └── deployMarketplace.js
 ```
 
-> Open `http://localhost:3000` in your browser.
+---
+
+## Important Notes
+
+* Make sure MetaMask is connected to the same local network (e.g. Hardhat localhost).
+* When refreshing, re-deploy contracts and update addresses.
+* Only books with proper metadata will display in Reader Dashboard.
 
 ---
 
-## ✅ Course Requirements Covered
 
-| Requirement                               | Status |
-|------------------------------------------|--------|
-| ERC721 Token (NFT)                       | ✅     |
-| ERC20 Token (BOOKY)                      | ✅     |
-| Smart contract with logic (mapping, struct) | ✅ |
-| Web3.js + React + MetaMask integration   | ✅     |
-| Minting, Listing, Buying via smart contracts | ✅ |
-| Local blockchain (Hardhat)               | ✅     |
-
----
 
 ## 👤 Author
 

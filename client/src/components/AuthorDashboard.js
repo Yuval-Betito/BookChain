@@ -15,50 +15,51 @@ export default function AuthorDashboard() {
 
   const handleMint = async (e) => {
     e.preventDefault();
-
     if (!title || !authorName || !coverImage) {
       setMessage('Please fill in all fields.');
       return;
     }
-
     try {
       if (!window.ethereum) throw new Error('MetaMask not detected.');
-
       const web3 = new Web3(window.ethereum);
       await window.ethereum.request({ method: 'eth_requestAccounts' });
       const accounts = await web3.eth.getAccounts();
 
+      const metadataResponse = await fetch('http://localhost:5000/api/saveMetadata', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: title,
+          author: authorName,
+          image: '/images/' + coverImage.name
+        })
+      });
+
+      const metadataResult = await metadataResponse.json();
+      const tokenURI = metadataResult.uri;
+
       const contract = new web3.eth.Contract(bookNFTAbi.abi, BOOK_NFT_ADDRESS);
-
-      const coverImageURI = `https://example.com/covers/${coverImage.name}`;
-      const tokenURI = `https://example.com/metadata/${title.replace(/\s+/g, '_')}.json`;
-
-      await contract.methods
-        .mintBookNFT(accounts[0], title, authorName, coverImageURI, tokenURI)
+      await contract.methods.mintBookNFT(accounts[0], title, authorName, '/images/' + coverImage.name, tokenURI)
         .send({
           from: accounts[0],
           gas: 3000000,
-          gasPrice: web3.utils.toWei('20', 'gwei')
+          gasPrice: web3.utils.toWei('20', 'gwei'),
         });
 
       setMessage('Book NFT minted successfully.');
     } catch (err) {
-      console.error('Minting error:', err);
-      setMessage(`Minting failed: ${err.message}`);
+      setMessage('Minting failed: ' + err.message);
     }
   };
 
   const handleListForSale = async (e) => {
     e.preventDefault();
-
     if (!price) {
       setMessage('Please enter a price.');
       return;
     }
-
     try {
       if (!window.ethereum) throw new Error('MetaMask not detected.');
-
       const web3 = new Web3(window.ethereum);
       await window.ethereum.request({ method: 'eth_requestAccounts' });
       const accounts = await web3.eth.getAccounts();
@@ -69,89 +70,97 @@ export default function AuthorDashboard() {
       const totalSupply = await nftContract.methods.totalSupply().call();
       const tokenId = parseInt(totalSupply) - 1;
 
-      await nftContract.methods
-        .approve(MARKETPLACE_ADDRESS, tokenId)
-        .send({ from: accounts[0] });
+      const owner = await nftContract.methods.ownerOf(tokenId).call();
+      if (owner.toLowerCase() !== accounts[0].toLowerCase()) {
+        setMessage('You are not the owner of this token.');
+        return;
+      }
 
+      await nftContract.methods.approve(MARKETPLACE_ADDRESS, tokenId).send({ from: accounts[0] });
       const priceInWei = web3.utils.toWei(price, 'ether');
 
-      await marketplace.methods
-        .listBook(tokenId, priceInWei)
-        .send({ from: accounts[0] });
-
+      await marketplace.methods.listBook(tokenId, priceInWei).send({ from: accounts[0] });
       setMessage('Book listed for sale successfully.');
     } catch (err) {
-      console.error('List error:', err);
-      setMessage(`Failed to list: ${err.message}`);
+      setMessage('Listing failed: ' + err.message);
     }
   };
 
   return (
-    <div>
+    <div className="min-h-screen bg-black text-white">
       <Header />
-      <div style={{ maxWidth: '500px', margin: '50px auto' }}>
-        <h2>Author Dashboard</h2>
-        <form onSubmit={handleMint}>
-          <div style={{ marginBottom: '10px' }}>
-            <label>Book Title:</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              style={inputStyle}
-            />
-          </div>
-          <div style={{ marginBottom: '10px' }}>
-            <label>Author Name:</label>
-            <input
-              type="text"
-              value={authorName}
-              onChange={(e) => setAuthorName(e.target.value)}
-              style={inputStyle}
-            />
-          </div>
-          <div style={{ marginBottom: '10px' }}>
-            <label>Cover Image:</label>
-            <input
-              type="file"
-              onChange={(e) => setCoverImage(e.target.files[0])}
-              style={inputStyle}
-            />
-          </div>
-          <button type="submit" style={buttonStyle}>Mint Book NFT</button>
+      <div className="text-center pt-6">
+        <h1 className="text-4xl font-bold text-yellow-400 mb-2">BookChain</h1>
+        <h2 className="text-2xl font-semibold text-white mb-8">Author Dashboard</h2>
+      </div>
+
+      <div className="max-w-xl mx-auto bg-gray-900 rounded-lg shadow-lg p-8">
+        <form onSubmit={handleMint} className="space-y-4">
+          <Input label="Book Title" value={title} onChange={setTitle} />
+          <Input label="Author Name" value={authorName} onChange={setAuthorName} />
+          <FileInput label="Cover Image" file={coverImage} onChange={setCoverImage} />
+          <Button label="Mint Book NFT" color="yellow" />
         </form>
 
-        <form onSubmit={handleListForSale}>
-          <div style={{ marginTop: '30px' }}>
-            <label>Price (BOOKY):</label>
-            <input
-              type="number"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              style={inputStyle}
-            />
-          </div>
-          <button type="submit" style={buttonStyle}>List for Sale</button>
+        <form onSubmit={handleListForSale} className="mt-10 space-y-4">
+          <Input label="Price (BOOKY)" value={price} onChange={setPrice} type="number" />
+          <Button label="List for Sale" color="yellow" />
         </form>
 
-        {message && <p>{message}</p>}
+        {message && (
+          <p className="mt-6 text-center text-sm text-yellow-300">{message}</p>
+        )}
       </div>
     </div>
   );
 }
 
-const inputStyle = {
-  width: '100%',
-  padding: '8px',
-  marginTop: '4px',
-  boxSizing: 'border-box'
-};
+function Input({ label, value, onChange, type = 'text' }) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-300 mb-1">{label}</label>
+      <input
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full bg-gray-800 border border-gray-600 text-white px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-yellow-400"
+      />
+    </div>
+  );
+}
 
-const buttonStyle = {
-  padding: '10px 20px',
-  fontSize: '16px',
-  cursor: 'pointer',
-  marginTop: '10px'
-};
+function FileInput({ label, file, onChange }) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-300 mb-1">{label}</label>
+      <label className="w-full cursor-pointer bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded block text-center">
+        {file ? file.name : "Choose Cover Image"}
+        <input type="file" onChange={(e) => onChange(e.target.files[0])} className="hidden" />
+      </label>
+    </div>
+  );
+}
+
+function Button({ label, color = 'yellow' }) {
+  const colorClass =
+    color === 'yellow'
+      ? 'bg-yellow-400 hover:bg-yellow-500 text-black'
+      : 'bg-white text-black';
+  return (
+    <button
+      type="submit"
+      className={`w-full py-2 font-bold rounded ${colorClass} transition duration-200`}
+    >
+      {label}
+    </button>
+  );
+}
+
+
+
+
+
+
+
 
 
