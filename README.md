@@ -17,7 +17,7 @@ BookChain is a decentralized application (DApp) that allows users to mint, manag
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/bookchain-dapp.git
+git clone https://github.com/Yuval-Betito/bookchain-dapp.git
 cd bookchain-dapp
 ```
 
