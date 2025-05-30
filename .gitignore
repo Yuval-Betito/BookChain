@@ -1,19 +1,31 @@
-# node_modules and build
+# Node modules
 node_modules/
 client/node_modules/
+
+# Build artifacts (Hardhat)
 artifacts/
 cache/
 build/
+
+# Next.js (אם בעתיד תשתמשי)
 client/.next/
+
+# Env files
+.env
 client/.env
 
-# OS
+# OS-specific files
 .DS_Store
 
-# compiled
+# Logs and system output
 *.log
 
-# local hardhat secrets
+# Hardhat secrets or private keys
 *.secret
-.env
+
+# Ignition (Hardhat Ignition modules)
+ignition/
+
+# Test files you don't need to push
+test/
 
