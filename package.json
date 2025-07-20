@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "dev": "concurrently \"npx hardhat node\" \"npx hardhat run scripts/deployAll.js --network localhost\" \"cd client && node server.js\" \"cd client && npm start\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -11,6 +12,7 @@
   "description": "",
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "concurrently": "^8.2.1",
     "hardhat": "^2.24.0"
   },
   "dependencies": {
@@ -18,3 +20,4 @@
     "web3": "^4.16.0"
   }
 }
+

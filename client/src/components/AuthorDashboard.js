@@ -3,19 +3,20 @@ import Web3 from 'web3';
 import Header from './Header';
 import bookNFTAbi from '../abi/BookNFT.json';
 import marketplaceAbi from '../abi/Marketplace.json';
-import { BOOK_NFT_ADDRESS } from '../contract-address';
-import { MARKETPLACE_ADDRESS } from '../marketplace-address';
+import { BOOK_NFT_ADDRESS } from '../addresses';
+import { MARKETPLACE_ADDRESS } from '../addresses';
 
 export default function AuthorDashboard() {
   const [title, setTitle] = useState('');
   const [authorName, setAuthorName] = useState('');
+  const [description, setDescription] = useState('');
   const [coverImage, setCoverImage] = useState(null);
   const [price, setPrice] = useState('');
   const [message, setMessage] = useState('');
 
   const handleMint = async (e) => {
     e.preventDefault();
-    if (!title || !authorName || !coverImage) {
+    if (!title || !authorName || !description || !coverImage) {
       setMessage('Please fill in all fields.');
       return;
     }
@@ -31,7 +32,8 @@ export default function AuthorDashboard() {
         body: JSON.stringify({
           title: title,
           author: authorName,
-          image: '/images/' + coverImage.name
+          image: '/images/' + coverImage.name,
+          description: description
         })
       });
 
@@ -98,6 +100,7 @@ export default function AuthorDashboard() {
         <form onSubmit={handleMint} className="space-y-4">
           <Input label="Book Title" value={title} onChange={setTitle} />
           <Input label="Author Name" value={authorName} onChange={setAuthorName} />
+          <Input label="Book Description" value={description} onChange={setDescription} />
           <FileInput label="Cover Image" file={coverImage} onChange={setCoverImage} />
           <Button label="Mint Book NFT" color="yellow" />
         </form>
@@ -155,6 +158,37 @@ function Button({ label, color = 'yellow' }) {
     </button>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Web3 from 'web3';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { BOOKY_TOKEN_ADDRESS } from '../erc20-address';
+import { BOOKY_TOKEN_ADDRESS } from '../addresses';
 import bookyAbi from '../abi/BookyToken.json';
 
 /**
@@ -102,6 +102,11 @@ export default function Header() {
     </header>
   );
 }
+
+
+
+
+
 
 
 

@@ -10,7 +10,6 @@ const PORT = 5000;
 // Write directly to client/public/metadata
 const METADATA_DIR = path.join(__dirname, 'public', 'metadata');
 
-
 app.use(cors());
 app.use(bodyParser.json());
 
@@ -20,8 +19,9 @@ if (!fs.existsSync(METADATA_DIR)) {
 }
 
 app.post('/api/saveMetadata', (req, res) => {
-    const { title, author, image } = req.body;
-    if (!title || !author || !image) {
+    const { title, author, image, description } = req.body;
+
+    if (!title || !author || !image || !description) {
         return res.status(400).json({ error: 'Missing fields' });
     }
 
@@ -31,7 +31,8 @@ app.post('/api/saveMetadata', (req, res) => {
     const metadata = {
         title,
         author,
-        image
+        image,
+        description
     };
 
     fs.writeFile(filePath, JSON.stringify(metadata, null, 2), (err) => {
@@ -47,4 +48,5 @@ app.post('/api/saveMetadata', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Metadata server is running at http://localhost:${PORT}`);
 });
+
 

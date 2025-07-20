@@ -1,24 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import Web3 from 'web3';
+import { BrowserProvider } from 'ethers';
 import Header from './Header';
 import bookNFTAbi from '../abi/BookNFT.json';
-import { BOOK_NFT_ADDRESS } from '../contract-address';
+import { BOOK_NFT_ADDRESS } from '../addresses';
 
-/**
- * ReaderDashboard component displays books owned by the connected user.
- * It fetches NFTs owned by the user and loads metadata for each one.
- */
 export default function ReaderDashboard() {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [viewedBookId, setViewedBookId] = useState(null);
+  const [mintHistory, setMintHistory] = useState([]);
 
   useEffect(() => {
     loadUserBooks();
+    loadMintHistory(); 
   }, []);
 
-  /**
-   * Loads books (NFTs) owned by the connected user and fetches their metadata.
-   */
   const loadUserBooks = async () => {
     try {
       if (!window.ethereum) throw new Error('MetaMask not detected');
@@ -46,6 +43,7 @@ export default function ReaderDashboard() {
               title: metadata.title,
               author: metadata.author,
               image: metadata.image,
+              description: metadata.description || 'No description available.',
             });
           }
         } catch {}
@@ -56,6 +54,50 @@ export default function ReaderDashboard() {
       // Silently fail
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadMintHistory = async () => {
+    try {
+      if (!window.ethereum) throw new Error('MetaMask not detected');
+      const web3 = new Web3(window.ethereum);
+      const contract = new web3.eth.Contract(bookNFTAbi.abi, BOOK_NFT_ADDRESS);
+
+      const events = await contract.getPastEvents("BookMinted", {
+        fromBlock: 0,
+        toBlock: "latest"
+      });
+
+      const history = events.map(event => ({
+        user: event.returnValues.to,
+        title: event.returnValues.title,
+        author: event.returnValues.author,
+        tokenId: event.returnValues.tokenId
+      }));
+
+      setMintHistory(history.reverse());
+    } catch (err) {
+      console.error("Failed to load mint history", err);
+    }
+  };
+
+  const handleViewBook = async (bookId) => {
+    try {
+      if (!window.ethereum) {
+        alert('MetaMask is not detected');
+        return;
+      }
+
+      const provider = new BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+
+      const message = 'I confirm I am the book owner';
+      await signer.signMessage(message);
+
+      setViewedBookId(bookId);
+    } catch (err) {
+      console.error('Signature rejected or failed', err);
+      alert('Signature rejected. Cannot view book.');
     }
   };
 
@@ -76,14 +118,58 @@ export default function ReaderDashboard() {
                 <h2 className="text-xl font-bold text-yellow-400">{book.title}</h2>
                 <p>Author: {book.author}</p>
                 <p>Token ID: {book.id}</p>
+
+                <button
+                  onClick={() => handleViewBook(book.id)}
+                  className="mt-3 px-4 py-2 bg-yellow-500 text-black font-semibold rounded hover:bg-yellow-400 transition"
+                >
+                  View Book
+                </button>
+
+                {viewedBookId === book.id && (
+                  <div className="mt-4 p-3 bg-[#1a1c2c] rounded text-sm text-gray-300">
+                    <p><strong>Description:</strong> {book.description}</p>
+                    <p><strong>Access Granted:</strong> Signed successfully</p>
+                  </div>
+                )}
               </div>
             ))
           )}
+
+          {/* Mint History Section */}
+          <div className="mt-12 px-4 max-w-2xl w-full">
+            <h2 className="text-xl font-bold text-yellow-300 mb-4"> Mint History</h2>
+            {mintHistory.length === 0 ? (
+              <p className="text-gray-400">No books minted yet.</p>
+            ) : (
+              <ul className="space-y-2">
+                {mintHistory.map((entry, index) => (
+                  <li key={index} className="bg-[#1a1a2e] p-4 rounded-md">
+                    <p><strong>Book:</strong> {entry.title}</p>
+                    <p><strong>Author:</strong> {entry.author}</p>
+                    <p><strong>Minted by:</strong> {entry.user}</p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
       )}
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

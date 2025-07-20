@@ -3,8 +3,8 @@ import Web3 from 'web3';
 import Header from './Header';
 import bookNFTAbi from '../abi/BookNFT.json';
 import marketplaceAbi from '../abi/Marketplace.json';
-import { BOOK_NFT_ADDRESS } from '../contract-address';
-import { MARKETPLACE_ADDRESS } from '../marketplace-address';
+import { BOOK_NFT_ADDRESS } from '../addresses';
+import { MARKETPLACE_ADDRESS } from '../addresses';
 
 /**
  * Marketplace page to display all listed books for sale and allow users to buy them using BOOKY tokens.
@@ -66,7 +66,7 @@ export default function MarketplacePage() {
       const marketplace = new web3.eth.Contract(marketplaceAbi.abi, MARKETPLACE_ADDRESS);
       const booky = new web3.eth.Contract(
         (await import('../abi/BookyToken.json')).default.abi,
-        (await import('../erc20-address')).BOOKY_TOKEN_ADDRESS
+        (await import('../addresses')).BOOKY_TOKEN_ADDRESS
       );
 
       const priceInWei = web3.utils.toWei(priceInEther, 'ether');
@@ -114,4 +114,11 @@ export default function MarketplacePage() {
     </div>
   );
 }
+
+
+
+
+
+
+
 
