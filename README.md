@@ -1,129 +1,159 @@
 # BookChain DApp
 
-BookChain is a decentralized application (DApp) that allows users to mint, manage, and sell digital books as NFTs (ERC721) using a custom ERC20 token called BOOKY.
-
-## Features
-
-* Mint books as NFTs (ERC721) with metadata (title, author, cover image)
-* Manage personal book ownership in Reader Dashboard
-* List books for sale and purchase them using BOOKY tokens in Marketplace
-* Wallet connection via MetaMask
-* Fully styled with Tailwind CSS and includes animations
+**BookChain** is a decentralized application (DApp) that allows users to mint, manage, and trade digital books as NFTs (ERC721) using a custom ERC20 token named **BOOKY**.
 
 ---
 
-## Installation & Setup Instructions
+## 🚀 Features
+
+- 📚 Mint books as NFTs (ERC721) with metadata: `title`, `author`, `cover image`
+- 👤 Manage owned books in Reader Dashboard
+- 🛒 Buy & sell books in the Marketplace using BOOKY tokens
+- 🔐 MetaMask wallet integration for authentication & transactions
+- 💽 Backend metadata server for serving book data
+- 🔧 Dynamic contract addresses via `.env` file
+- 🧾 Mint history based on blockchain events
+- ✍️ Signature verification before viewing book metadata
+- 🎨 Tailwind CSS styling and smooth animations
+
+---
+
+## 🛠 Installation & Setup
 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/Yuval-Betito/bookchain-dapp.git
-cd bookchain-dapp
+git clone https://github.com/Yuval-Betito/BookChain.git
+cd BookChain
 ```
 
-### 2. Install Dependencies for Client
+### 2. Install Dependencies
 
 ```bash
+npm install
 cd client
 npm install
+cd ..
 ```
 
-### 3. Start the React App
+### 3. Start Full Development Environment
 
 ```bash
-npm start
+npm run dev
 ```
 
-Runs on: `http://localhost:3000`
+This will:
 
-### 4. Run Metadata Server
+- Start a local Hardhat blockchain
+- Deploy all contracts via `scripts/deployAll.js`
+- Save deployed addresses to `client/.env` file (React-compatible)
+- Copy all contract ABIs to `client/src/abi`
+- Launch the metadata server on `http://localhost:5000`
+- Start the React app on `http://localhost:3000`
 
-In a separate terminal:
-
-```bash
-cd client
-node server.js
-```
-
-Runs on: `http://localhost:5000`
-
-### 5. Compile & Deploy Contracts
-
-Using Hardhat:
-
-```bash
-npx hardhat compile
-npx hardhat run scripts/deployBookNFT.js --network localhost
-npx hardhat run scripts/deployBookyToken.js --network localhost
-npx hardhat run scripts/deployMarketplace.js --network localhost
-```
-
-Update the deployed contract addresses in:
-
-* `client/src/contract-address.js`
-* `client/src/marketplace-address.js`
-* `client/src/erc20-address.js`
+✅ Make sure MetaMask is connected to `localhost:8545`
 
 ---
 
-## Pages Overview
+## 🌐 Pages Overview
 
-| Page            | Path           | Description                  |
-| --------------- | -------------- | ---------------------------- |
-| HomePage        | `/`            | Landing page with navigation |
-| AuthorDashboard | `/author`      | Upload, mint, and list books |
-| MarketplacePage | `/marketplace` | View and buy listed books    |
-| ReaderDashboard | `/reader`      | See books owned by the user  |
-
----
-
-## Technologies Used
-
-* React + React Router
-* Tailwind CSS
-* Solidity (ERC721 + ERC20)
-* Hardhat
-* MetaMask + Web3.js
-* Express (for metadata handling)
+| Page             | Path            | Description                                |
+|------------------|------------------|--------------------------------------------|
+| Home             | `/`              | Welcome screen with navigation             |
+| AuthorDashboard  | `/author`        | Mint books, manage listings                |
+| ReaderDashboard  | `/reader`        | View and read purchased books              |
+| Marketplace      | `/marketplace`   | Browse and purchase listed books           |
 
 ---
 
-## Folder Structure
+## 📁 Folder Structure
 
 ```
-bookchain-dapp/
-├── client/
-│   ├── public/
-│   │   ├── images/
-│   │   └── metadata/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── abi/
-│   │   └── ...
-│   └── server.js
-├── contracts/
+BookChain/
+├── contracts/                     # Smart contracts (Solidity)
 │   ├── BookNFT.sol
 │   ├── BookyToken.sol
 │   └── Marketplace.sol
-├── scripts/
+│
+├── scripts/                       # Hardhat deployment scripts
 │   ├── deployBookNFT.js
 │   ├── deployBookyToken.js
-│   └── deployMarketplace.js
+│   ├── deployMarketplace.js
+│   └── deployAll.js              # Deploys all contracts together
+│
+├── client/                        # React frontend
+│   ├── public/
+│   │   ├── metadata/             # Book metadata JSON files
+│   │   └── images/               # Book covers, logo, etc.
+│   ├── src/
+│   │   ├── components/           # React UI components
+│   │   ├── abi/                  # Contract ABIs
+│   │   ├── addresses.js          # Loads contract addresses from env
+│   │   └── App.js, index.js
+│   ├── server.js                 # Metadata server (Express)
+│   └── .env                      # Stores deployed contract addresses
+│
+├── hardhat.config.js             # Hardhat configuration
+└── README.md
 ```
 
 ---
 
-## Important Notes
+## 🔐 Environment File (.env)
 
-* Make sure MetaMask is connected to the same local network (e.g. Hardhat localhost).
-* When refreshing, re-deploy contracts and update addresses.
-* Only books with proper metadata will display in Reader Dashboard.
+The `.env` file in the `client/` directory is automatically generated after deployment and should look like this:
+
+```env
+REACT_APP_BOOK_ADDRESS=0xYourBookNFTContract
+REACT_APP_ERC20_ADDRESS=0xYourBookyTokenContract
+REACT_APP_MARKETPLACE_ADDRESS=0xYourMarketplaceContract
+```
+
+These are accessed via `process.env.REACT_APP_*` in the frontend.
 
 ---
 
+## ⚙️ Development Scripts
 
+To run the entire environment locally with one command:
+
+```bash
+npm run dev
+```
+
+This script runs the following processes in parallel:
+
+- `npx hardhat node`
+- `npx hardhat run scripts/deployAll.js --network localhost`
+- `cd client && node server.js`
+- `cd client && npm start`
+
+Requires [`concurrently`](https://www.npmjs.com/package/concurrently) to be installed.
+
+---
+
+## 🧠 Technologies Used
+
+- React & React Router
+- Tailwind CSS
+- Solidity (ERC721, ERC20)
+- Hardhat (Ethereum development environment)
+- Web3.js / ethers.js
+- MetaMask
+- Node.js (Express server)
+
+---
+
+## ⚠️ Notes
+
+- Make sure MetaMask is connected to the local Hardhat network (http://localhost:8545)
+- On every restart, redeploy contracts using `deployAll.js`
+- Only books with valid metadata will appear properly in the app
+
+---
 
 ## 👤 Author
 
 **Yuval Betito**  
-[GitHub Profile](https://github.com/Yuval-Betito)
+🔗 [GitHub Profile](https://github.com/Yuval-Betito)
+
