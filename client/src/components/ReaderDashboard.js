@@ -1,9 +1,11 @@
+
 import React, { useEffect, useState } from 'react';
 import Web3 from 'web3';
 import { BrowserProvider } from 'ethers';
 import Header from './Header';
 import bookNFTAbi from '../abi/BookNFT.json';
-import { BOOK_NFT_ADDRESS } from '../addresses';
+import marketplaceAbi from '../abi/Marketplace.json';
+import { BOOK_NFT_ADDRESS, MARKETPLACE_ADDRESS } from '../addresses';
 
 export default function ReaderDashboard() {
   const [books, setBooks] = useState([]);
@@ -23,17 +25,20 @@ export default function ReaderDashboard() {
       const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
       const userAddress = accounts[0];
 
-      const contract = new web3.eth.Contract(bookNFTAbi.abi, BOOK_NFT_ADDRESS);
-      const totalSupply = await contract.methods.totalSupply().call();
+      const nftContract = new web3.eth.Contract(bookNFTAbi.abi, BOOK_NFT_ADDRESS);
+      const marketplace = new web3.eth.Contract(marketplaceAbi.abi, MARKETPLACE_ADDRESS);
+      const totalSupply = await nftContract.methods.totalSupply().call();
 
       const ownedBooks = [];
 
       for (let tokenId = 0; tokenId < totalSupply; tokenId++) {
         try {
-          const owner = await contract.methods.ownerOf(tokenId).call();
-
+          const owner = await nftContract.methods.ownerOf(tokenId).call();
           if (owner.toLowerCase() === userAddress.toLowerCase()) {
-            const tokenURI = await contract.methods.tokenURI(tokenId).call();
+            const listing = await marketplace.methods.getListing(tokenId).call();
+            if (listing.price > 0) continue;  // Skip books that are still for sale
+
+            const tokenURI = await nftContract.methods.tokenURI(tokenId).call();
             const fullURI = tokenURI.startsWith('http') ? tokenURI : window.location.origin + tokenURI;
             const response = await fetch(fullURI);
             const metadata = await response.json();
@@ -158,6 +163,25 @@ export default function ReaderDashboard() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
